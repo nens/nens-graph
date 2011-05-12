@@ -1,26 +1,24 @@
 from math import pi
+from random import choice
+from random import seed
 from numpy import arange
 from numpy import array
 from numpy import concatenate
 from logging import getLogger
-from django.http import HttpResponse
 from nens_graph.common import NensGraph
 
-from matplotlib.figure import Figure
-from matplotlib.axes import Axes
 from matplotlib import cm
 from matplotlib.collections import RegularPolyCollection
 from matplotlib.collections import CircleCollection
-from matplotlib.patches import RegularPolygon
-from matplotlib.patches import Circle
 from matplotlib.lines import Line2D
 from matplotlib.text import Text
 
 logger = getLogger(__name__)
 
+
 class RiverGraph(NensGraph):
     """Class for matplotlib river graphs
-    
+
     Copy/pasted from lizard_map/adapter.py and adapted to our needs.
 
     Basic test:
@@ -43,7 +41,7 @@ class RiverGraph(NensGraph):
                  **kwargs):
 
         super(RiverGraph, self).__init__(*args, **kwargs)
-        
+
         #self.figure.set_facecolor('#bbbbbb')
         self.start_km = start_km
         self.end_km = end_km
@@ -56,18 +54,22 @@ class RiverGraph(NensGraph):
                                           axes_width,
                                           0.49],
                                          ylabel='MHW overschrijding [m]')
-        self.axes.grid(True, linestyle='-',color='lightgrey')
+        self.axes.grid(True, linestyle='-', color='lightgrey')
         self.axes.invert_xaxis()
         self.bar_axes = self.figure.add_axes([axes_left,
                                               0.10,
                                               axes_width,
                                               0.20],
                                              xlabel='Rivier Kilometer')
-        self.bar_axes.grid(True, linestyle='-',color='lightgrey')
-        self.bar_axes.set_ylim((-0.05,1.1))
-        self.bar_axes.get_yaxis().set_ticks([0.1,0.3,0.5,0.7,0.9])
-        self.bar_axes.get_yaxis().set_ticklabels(['knelpt','Retent','Dijk','Onttr','Overig'])
-        
+        self.bar_axes.grid(True, linestyle='-', color='lightgrey')
+        self.bar_axes.set_ylim((-0.05, 1.1))
+        self.bar_axes.get_yaxis().set_ticks([0.1, 0.3, 0.5, 0.7, 0.9])
+        self.bar_axes.get_yaxis().set_ticklabels(['knelpt',
+                                                  'Retent',
+                                                  'Dijk',
+                                                  'Onttr',
+                                                  'Overig'])
+
         # bar style options and initializations
         self.legend_handles = []
         self.legend_labels = []
@@ -77,15 +79,6 @@ class RiverGraph(NensGraph):
         self.legend_markeredgewidth = 1.2
         self.colormap = cm.cool
         self.patch_zorder = 10
-
-        # Add fake patches at fake positions
-        from random import choice
-        from random import seed
-        seed(0)
-        xlim = self.axes.get_xlim()
-        step = (max(xlim) - min(xlim)) / 40
-        kms = arange(xlim[1] + step, xlim[0] - step, step)
-        iters = 25
 
     def http_png(self):
 
@@ -99,7 +92,7 @@ class RiverGraph(NensGraph):
             l.set_visible(False)
         for l in self.bar_axes.get_yaxis().get_majorticklabels():
             l.set_horizontalalignment('left')
-            l.set_position((-.08,0))
+            l.set_position((-.08, 0))
 
         self.axes.set_autoscaley_on(False)
         self.axes.axhline(0,
@@ -109,20 +102,18 @@ class RiverGraph(NensGraph):
                           label='Nullijn')
 
         # Add fake patches at fake positions
-        from random import choice
-        from random import seed
         seed(0)
         xlim = self.axes.get_xlim()
         step = (max(xlim) - min(xlim)) / 40
         kms = arange(xlim[1] + step, xlim[0] - step, step)
         iters = 25
-    
+
         self.add_diamonds([choice(kms) for i in range(iters)])
         self.add_uptriangles([choice(kms) for i in range(iters)])
         self.add_squares([choice(kms) for i in range(iters)])
         self.add_downtriangles([choice(kms) for i in range(iters)])
         self.add_circles([choice(kms) for i in range(iters)])
-        self.bar_axes.text(0.5, 0.5,'RANDOM DATA',
+        self.bar_axes.text(0.5, 0.5, 'RANDOM DATA',
                            horizontalalignment='center',
                            verticalalignment='center',
                            transform=self.bar_axes.transAxes,
@@ -138,18 +129,18 @@ class RiverGraph(NensGraph):
                       ('Plaats C',
                        'Plaats B',
                        'Plaats A'))
-        
+
         self.legend()
-            
+
         return super(RiverGraph, self).http_png()
 
     def add_diamonds(self, kms):
         """Add diamonds to bar_axes at specified kms.
-        
+
         The self.legend_handles_labels receives the patch as well."""
         ypos = 0.9
-        km_arr = array(kms).reshape(-1,1)
-        ypos_arr = array([ypos for x in kms]).reshape(-1,1)
+        km_arr = array(kms).reshape(-1, 1)
+        ypos_arr = array([ypos for x in kms]).reshape(-1, 1)
         offsets = concatenate((km_arr, ypos_arr), axis=1)
 
         collection = RegularPolyCollection(
@@ -159,28 +150,27 @@ class RiverGraph(NensGraph):
             facecolors=self.colormap(ypos),
             offsets=offsets,
             transOffset=self.bar_axes.transData,
-            zorder=self.patch_zorder
-        )
+            zorder=self.patch_zorder)
         self.bar_axes.add_collection(collection)
-        
-        line = Line2D((0,1),
-                      (0,0),
+
+        line = Line2D((0, 1),
+                      (0, 0),
                       linestyle='',
                       marker='D',
                       markersize=self.legend_markersize,
                       markeredgewidth=self.legend_markeredgewidth,
                       markerfacecolor=self.colormap(ypos))
-        label = 'Overig'                               
+        label = 'Overig'
         self.legend_handles.append(line)
         self.legend_labels.append(label)
 
     def add_uptriangles(self, kms):
         """Add upward triangles to bar_axes at specified kms.
-        
+
         The self.legend_handles_labels receives the patch as well."""
         ypos = 0.7
-        km_arr = array(kms).reshape(-1,1)
-        ypos_arr = array([ypos for x in kms]).reshape(-1,1)
+        km_arr = array(kms).reshape(-1, 1)
+        ypos_arr = array([ypos for x in kms]).reshape(-1, 1)
         offsets = concatenate((km_arr, ypos_arr), axis=1)
 
         collection = RegularPolyCollection(
@@ -190,43 +180,41 @@ class RiverGraph(NensGraph):
             facecolors=self.colormap(ypos),
             offsets=offsets,
             transOffset=self.bar_axes.transData,
-            zorder=self.patch_zorder
-        )
+            zorder=self.patch_zorder)
         self.bar_axes.add_collection(collection)
-        
-        line = Line2D((0,1),
-                      (0,0),
+
+        line = Line2D((0, 1),
+                      (0, 0),
                       linestyle='',
                       marker='^',
                       markersize=self.legend_markersize,
                       markeredgewidth=self.legend_markeredgewidth,
                       markerfacecolor=self.colormap(ypos))
-        label = 'Groene rivieren / ontrekkingen'                               
+        label = 'Groene rivieren / ontrekkingen'
         self.legend_handles.append(line)
         self.legend_labels.append(label)
 
     def add_squares(self, kms):
         """Add squares to bar_axes at specified kms.
-        
+
         The self.legend_handles_labels receives the patch as well."""
         ypos = 0.5
-        km_arr = array(kms).reshape(-1,1)
-        ypos_arr = array([ypos for x in kms]).reshape(-1,1)
+        km_arr = array(kms).reshape(-1, 1)
+        ypos_arr = array([ypos for x in kms]).reshape(-1, 1)
         offsets = concatenate((km_arr, ypos_arr), axis=1)
 
         collection = RegularPolyCollection(
             numsides=4,
-            rotation=pi/4,
+            rotation=pi / 4,
             sizes=(self.polysize,),
             facecolors=self.colormap(ypos),
             offsets=offsets,
             transOffset=self.bar_axes.transData,
-            zorder=self.patch_zorder
-        )
+            zorder=self.patch_zorder)
         self.bar_axes.add_collection(collection)
 
-        line = Line2D((0,1),
-                      (0,0),
+        line = Line2D((0, 1),
+                      (0, 0),
                       linestyle='',
                       marker='s',
                       markersize=self.legend_markersize,
@@ -238,11 +226,11 @@ class RiverGraph(NensGraph):
 
     def add_downtriangles(self, kms):
         """Add downward triangles to bar_axes at specified kms.
-        
+
         The self.legend_handles_labels receives the patch as well."""
         ypos = 0.3
-        km_arr = array(kms).reshape(-1,1)
-        ypos_arr = array([ypos for x in kms]).reshape(-1,1)
+        km_arr = array(kms).reshape(-1, 1)
+        ypos_arr = array([ypos for x in kms]).reshape(-1, 1)
         offsets = concatenate((km_arr, ypos_arr), axis=1)
 
         collection = RegularPolyCollection(
@@ -252,12 +240,11 @@ class RiverGraph(NensGraph):
             facecolors=self.colormap(ypos),
             offsets=offsets,
             transOffset=self.bar_axes.transData,
-            zorder=self.patch_zorder
-        )
+            zorder=self.patch_zorder)
         self.bar_axes.add_collection(collection)
 
-        line = Line2D((0,1),
-                      (0,0),
+        line = Line2D((0, 1),
+                      (0, 0),
                       linestyle='',
                       marker='v',
                       markersize=self.legend_markersize,
@@ -269,11 +256,11 @@ class RiverGraph(NensGraph):
 
     def add_circles(self, kms):
         """Add circles to bar_axes at specified kms.
-        
+
         The self.legend_handles_labels receives the patch as well."""
         ypos = 0.1
-        km_arr = array(kms).reshape(-1,1)
-        ypos_arr = array([ypos for x in kms]).reshape(-1,1)
+        km_arr = array(kms).reshape(-1, 1)
+        ypos_arr = array([ypos for x in kms]).reshape(-1, 1)
         offsets = concatenate((km_arr, ypos_arr), axis=1)
 
         collection = CircleCollection(
@@ -281,11 +268,10 @@ class RiverGraph(NensGraph):
             facecolors=self.colormap(ypos),
             offsets=offsets,
             transOffset=self.bar_axes.transData,
-            zorder=self.patch_zorder
-        )
+            zorder=self.patch_zorder)
         self.bar_axes.add_collection(collection)
-        line = Line2D((0,1),
-                      (0,0),
+        line = Line2D((0, 1),
+                      (0, 0),
                       linestyle='',
                       marker='o',
                       markersize=self.legend_markersize,
@@ -294,11 +280,11 @@ class RiverGraph(NensGraph):
         label = 'Knelpunten'
         self.legend_handles.append(line)
         self.legend_labels.append(label)
-        
+
     def add_text(self, kms, strs):
         ylim = self.axes.get_ylim()
         ypos = ylim[0] + (ylim[1] - ylim[0]) * 0.9
-        for k,t in zip(kms, strs):
+        for k, t in zip(kms, strs):
             self.axes.add_artist(Text(k,
                                       ypos,
                                       t,
@@ -319,7 +305,7 @@ class RiverGraph(NensGraph):
 
     def legend(self, handles=None, labels=None):
         handles, labels = self.axes.get_legend_handles_labels()
-        
+
         # Remove the labels from the vlines
         def f(tup):
             return tup[1] != 'remove_from_legend'

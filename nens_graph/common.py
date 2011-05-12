@@ -41,19 +41,19 @@ class NensGraph(object):
                                       inches_from_pixels(self.height)),
                              dpi=self.dpi,
                              facecolor='#ffffff')
-                             
+
     def http_png(self):
         canvas = FigureCanvas(self.figure)
         response = HttpResponse(content_type='image/png')
         self.figure.canvas.print_png(response)
-        return response        
+        return response
 
 
 class Converter(object):
     """Conversion methods for graphs."""
     def __init__(self, dpi=72):
         self.dpi = dpi
-        
+
     def inches_from_pixels(self, pixels):
         """Return size in inches for matplotlib's benefit"""
         return float(pixels) / self.dpi
@@ -289,13 +289,12 @@ class MultilineAutoDateFormatter(AutoDateFormatter):
             middle_of_year = datetime.datetime(dt.year, 7, 1)
             return date2num(middle_of_year)
 
-            
+
 class AutoLabelWidthAdjuster(object):
     """A tool for the automatic adjustment of the axes extents to accomodate
     the varying size of the ticklabels."""
-    def __init__(self,figure):
+    def __init__(self, figure):
         pass
-
 
     def adjust_left_axis(event):
         pass
@@ -318,5 +317,5 @@ class AutoLabelWidthAdjuster(object):
 
 #    fig.canvas.mpl_connect('draw_event', on_draw)
 
-#    plt.show()            
-#            
+#    plt.show()
+#

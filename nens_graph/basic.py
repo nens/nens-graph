@@ -318,7 +318,7 @@ class Graph(object):
         response = HttpResponse(content_type='image/png')
         canvas.print_png(response)
         return response
-        
+
 from django.http import HttpResponse
 from lizard_map.adapter import BOTTOM_LINE_HEIGHT
 from lizard_map.adapter import LEFT_LABEL_WIDTH
@@ -331,6 +331,3 @@ from matplotlib.figure import Figure
 from matplotlib.ticker import MaxNLocator
 
 BOTTOM_LEGEND_HEIGHT = 100
-
-
-
