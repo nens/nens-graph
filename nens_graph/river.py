@@ -122,6 +122,14 @@ class RiverGraph(NensGraph):
         self.add_squares([choice(kms) for i in range(iters)])
         self.add_downtriangles([choice(kms) for i in range(iters)])
         self.add_circles([choice(kms) for i in range(iters)])
+        self.bar_axes.text(0.5, 0.5,'RANDOM DATA',
+                           horizontalalignment='center',
+                           verticalalignment='center',
+                           transform=self.bar_axes.transAxes,
+                           zorder=100,
+                           size=50,
+                           color='red',
+                           alpha=0.2)
 
         # Add some test place_names
         self.add_text((xlim[1] + (xlim[0] - xlim[1]) * 0.2,
