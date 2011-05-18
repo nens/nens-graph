@@ -2,8 +2,8 @@ Changelog of nens-graph
 ===================================================
 
 
-0.1 (unreleased)
-----------------
+0.0.1 (2011-05-18)
+------------------
 
 - Initial library skeleton created by nensskel.
 
