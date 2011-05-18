@@ -91,7 +91,7 @@ BOTTOM_LINE_HEIGHT = FONT_SIZE * 1.5
 BOTTOM_LEGEND_HEIGHT = 100
 
 
-_def inches_from_pixels(pixels):
+def inches_from_pixels(pixels):
     """Return size in inches for matplotlib's benefit"""
     return pixels / SCREEN_DPI
 
