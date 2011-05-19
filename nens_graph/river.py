@@ -17,22 +17,7 @@ logger = getLogger(__name__)
 
 
 class RiverGraph(NensGraph):
-    """Class for matplotlib river graphs
-
-    Copy/pasted from lizard_map/adapter.py and adapted to our needs.
-
-    Basic test:
-
-      >>> graph = RiverGraph()
-      >>> graph = RiverGraph(10, 20, 400, 300)
-      >>> graph.suptitle('test')
-      >>> graph.set_xlabel('test')
-      >>> graph.fixup_axes()
-      >>> graph.legend_space()
-      >>> graph.legend()
-      >>> output = graph.http_png()
-
-    """
+    """Class for matplotlib river graphs."""
 
     def __init__(self,
                  start_km=None,
@@ -80,7 +65,7 @@ class RiverGraph(NensGraph):
         self.colormap = cm.cool
         self.patch_zorder = 10
 
-    def http_png(self):
+    def png_response(self):
 
         # Do final tweaks after data has been added to the axes
         ylim_old = self.axes.get_ylim()
@@ -132,7 +117,7 @@ class RiverGraph(NensGraph):
 
         self.legend()
 
-        return super(RiverGraph, self).http_png()
+        return super(RiverGraph, self).png_response()
 
     def add_diamonds(self, kms):
         """Add diamonds to bar_axes at specified kms.

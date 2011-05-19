@@ -11,7 +11,6 @@ from matplotlib.dates import rrulewrapper
 
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from django.http import HttpResponse
 from datetime import datetime
 from dateutil.rrule import YEARLY, MONTHLY, DAILY, HOURLY, MINUTELY, SECONDLY
 from dateutil.relativedelta import relativedelta
@@ -35,9 +34,11 @@ matplotlib.rcParams.update(RC_PARAMS)
 
 class NensGraph(object):
     """Base for all graphs in the nens_graph library. Provides methods for
-    initialization and serving."""
+    initialization and serving. The responseobject needs to be created in
+    the calling application."""
 
     def __init__(self, **kwargs):
+        self.responseobject = None
         self.width = kwargs.get('width', 640)
         self.height = kwargs.get('height', 480)
         self.fontsize = kwargs.get('fontsize', FONTSIZE)
@@ -49,12 +50,13 @@ class NensGraph(object):
                              dpi=self.dpi,
                              facecolor='#ffffff')
 
-    def http_png(self):
-        #canvas = FigureCanvas(self.figure)
+    def png_response(self):
+        if self.responseobject is None:
+            raise TypeError('Expected response object, not None.')
         FigureCanvas(self.figure)
-        response = HttpResponse(content_type='image/png')
-        self.figure.canvas.print_png(response)
-        return response
+        response = self.responseobject
+        self.figure.canvas.print_png(self.responseobject)
+        return self.responseobject
 
 
 class Converter(object):
