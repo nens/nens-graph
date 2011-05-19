@@ -3,13 +3,20 @@ from __future__ import division
 from matplotlib.figure import Figure
 from matplotlib.dates import AutoDateFormatter
 from matplotlib.dates import AutoDateLocator
+from matplotlib.dates import DateFormatter
+from matplotlib.dates import RRuleLocator
+from matplotlib.dates import date2num
+from matplotlib.dates import num2date
+from matplotlib.dates import rrulewrapper
 
-import matplotlib
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from django.http import HttpResponse
+from datetime import datetime
+from dateutil.rrule import YEARLY, MONTHLY, DAILY, HOURLY, MINUTELY, SECONDLY
+from dateutil.relativedelta import relativedelta
 
-
+import matplotlib
 import logging
 logger = logging.getLogger(__name__)
 
@@ -43,7 +50,8 @@ class NensGraph(object):
                              facecolor='#ffffff')
 
     def http_png(self):
-        canvas = FigureCanvas(self.figure)
+        #canvas = FigureCanvas(self.figure)
+        FigureCanvas(self.figure)
         response = HttpResponse(content_type='image/png')
         self.figure.canvas.print_png(response)
         return response

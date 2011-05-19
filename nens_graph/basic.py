@@ -1,76 +1,10 @@
 from django.http import HttpResponse
-from lizard_map.adapter import BOTTOM_LINE_HEIGHT
-from lizard_map.adapter import LEFT_LABEL_WIDTH
-from lizard_map.adapter import LEGEND_WIDTH
-from lizard_map.adapter import _inches_from_pixels
-from lizard_map.matplotlib_settings import FONT_SIZE
-from lizard_map.matplotlib_settings import SCREEN_DPI
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
-from matplotlib.ticker import MaxNLocator
-
-import csv
-import logging
-import os
-import posixpath
-import random
-import urllib
-import platform
-
-from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.mail import send_mail
-from django.core.urlresolvers import reverse
-from django.http import Http404
-from django.http import HttpResponse
-from django.http import HttpResponseForbidden
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
-from django.shortcuts import render_to_response
-from django.template import RequestContext
-from django.views.static import serve
-from haystack.forms import SearchForm
-from haystack.query import SearchQuerySet
-from lizard_map.models import Workspace
-from lizard_map.workspace import WorkspaceManager
-from pydap import client
-from recaptcha.client import captcha
-
-from deltaportaal.forms import ContactForm
-from deltaportaal.forms import ProgramPermissionRequestForm
-from deltaportaal.forms import SettingsForm
-from deltaportaal.forms import UserForm
-from deltaportaal.forms import UserProfileForm
-from deltaportaal.graph import RiverGraph
-from deltaportaal.models import GlossaryTerm
-from deltaportaal.models import Measure
-from deltaportaal.models import Program
-from deltaportaal.models import ProgramFile
-from deltaportaal.models import Strategy
-from deltaportaal.models import relevant_parameters
-from deltaportaal.programs import ProgramPermissionInfo
-from deltaportaal.programs import user_overview
-from deltaportaal.strategies import chosen_strategies
-from deltaportaal.strategies import my_strategies
-from deltaportaal.strategies import public_strategies
 
 import datetime
 import numpy
 
-from dateutil.relativedelta import relativedelta
-from dateutil.rrule import YEARLY, MONTHLY, DAILY, HOURLY, MINUTELY, SECONDLY
-from django.core.urlresolvers import reverse
-from django.http import HttpResponse
-from django.utils import simplejson as json
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.dates import DateFormatter
-from matplotlib.dates import RRuleLocator
 from matplotlib.dates import date2num
-from matplotlib.dates import num2date
-from matplotlib.dates import rrulewrapper
 from matplotlib.figure import Figure
 from matplotlib.ticker import MaxNLocator
 from matplotlib.ticker import ScalarFormatter
@@ -91,7 +25,7 @@ BOTTOM_LINE_HEIGHT = FONT_SIZE * 1.5
 BOTTOM_LEGEND_HEIGHT = 100
 
 
-def inches_from_pixels(pixels):
+def _inches_from_pixels(pixels):
     """Return size in inches for matplotlib's benefit"""
     return pixels / SCREEN_DPI
 
@@ -318,16 +252,3 @@ class Graph(object):
         response = HttpResponse(content_type='image/png')
         canvas.print_png(response)
         return response
-
-from django.http import HttpResponse
-from lizard_map.adapter import BOTTOM_LINE_HEIGHT
-from lizard_map.adapter import LEFT_LABEL_WIDTH
-from lizard_map.adapter import LEGEND_WIDTH
-from lizard_map.adapter import _inches_from_pixels
-from lizard_map.matplotlib_settings import FONT_SIZE
-from lizard_map.matplotlib_settings import SCREEN_DPI
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
-from matplotlib.ticker import MaxNLocator
-
-BOTTOM_LEGEND_HEIGHT = 100
