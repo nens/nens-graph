@@ -1,5 +1,6 @@
 from __future__ import division
 
+from matplotlib.transforms import Bbox
 from matplotlib.figure import Figure
 from matplotlib.dates import AutoDateFormatter
 from matplotlib.dates import AutoDateLocator
@@ -50,13 +51,43 @@ class NensGraph(object):
                              dpi=self.dpi,
                              facecolor='#ffffff')
 
+    def object_width(self, objects):
+        """Return width in figure coordinates of union of objects.
+       The objects should support the get_window_extent()-method."""
+        bboxes = []
+        for o in objects:
+            bbox = o.get_window_extent()
+            # get_window_extent() gives pixels, we need figure coordinates:
+            bboxi = bbox.inverse_transformed(self.figure.transFigure)
+            bboxes.append(bboxi)
+        bbox = Bbox.union(bboxes)
+        return bbox.width
+
+    def object_height(self, objects):
+        """Return height in figure coordinates of union of objects.
+       The objects should support the get_window_extent()-method."""
+        bboxes = []
+        for o in objects:
+            bbox = o.get_window_extent()
+            # get_window_extent() gives pixels, we need figure coordinates:
+            bboxi = bbox.inverse_transformed(self.figure.transFigure)
+            bboxes.append(bboxi)
+        bbox = Bbox.union(bboxes)
+        return bbox.height
+
+    def on_draw(self, event):
+        """ Override this function for last minute tweaks to the layout. """
+        pass
+
     def png_response(self):
         if self.responseobject is None:
             raise TypeError('Expected response object, not None.')
         FigureCanvas(self.figure)
-        response = self.responseobject
+
+        self.figure.canvas.mpl_connect('draw_event', self.on_draw)
         self.figure.canvas.print_png(self.responseobject)
-        return self.responseobject
+        response = self.responseobject
+        return response
 
 
 class Converter(object):
@@ -284,19 +315,19 @@ class MultilineAutoDateFormatter(AutoDateFormatter):
         def middle_of_day(self, tick):
             """ Return the middle of the day as matplotlib number. """
             dt = num2date(tick)
-            middle_of_day = datetime.datetime(dt.year, dt.month, dt.day, 12)
+            middle_of_day = datetime(dt.year, dt.month, dt.day, 12)
             return date2num(middle_of_day)
 
         def middle_of_month(self, tick):
             """ Return the middle of the month as matplotlib number. """
             dt = num2date(tick)
-            middle_of_month = datetime.datetime(dt.year, dt.month, 16)
+            middle_of_month = datetime(dt.year, dt.month, 16)
             return date2num(middle_of_month)
 
         def middle_of_year(self, tick):
             """ Return the middle of the year as matplotlib number. """
             dt = num2date(tick)
-            middle_of_year = datetime.datetime(dt.year, 7, 1)
+            middle_of_year = datetime(dt.year, 7, 1)
             return date2num(middle_of_year)
 
 
