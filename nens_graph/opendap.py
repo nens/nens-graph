@@ -54,6 +54,48 @@ class OpendapGraph(NensGraph):
         # Show line for today.
         self.axes.axvline(self.today, color='orange', lw=1, ls='--')
 
+    def legend(self, handles=None, labels=None):
+        handles, labels = self.axes.get_legend_handles_labels()
+
+        if handles and labels:
+            nitems = len(handles)
+            ncol = int((nitems - 1) / 3) + 1
+            # What comes next is an educated guess on the amount of
+            # characters that can be used without collisions in the legend.
+            ntrunc = int((self.width / ncol - 24) / 10)
+
+            labels = [l[0:ntrunc] for l in labels]
+            self.legend_obj = self.axes.legend(handles,
+                             labels,
+                             bbox_to_anchor=(0., 0., 1., 0.),
+                             # bbox_transform=self.figure.transFigure,
+                             loc=3,
+                             ncol=ncol,
+                             mode="expand",
+                             borderaxespad=0.)
+
+    def png_response(self):
+
+        self.axes.set_xlim(date2num((self.start_date, self.end_date)))
+
+        major_locator = LessTicksAutoDateLocator()
+        self.axes.xaxis.set_major_locator(major_locator)
+
+        major_formatter = MultilineAutoDateFormatter(
+            major_locator, self.axes)
+        self.axes.xaxis.set_major_formatter(major_formatter)
+
+        # Do final tweaks after data has been added to the axes
+        ylim_old = self.axes.get_ylim()
+        ylim_new = (ylim_old[0],
+                    ylim_old[1] + 0.15 * (ylim_old[1] - ylim_old[0]))
+        self.axes.set_ylim(ylim_new)
+
+        self.axes.set_autoscaley_on(False)
+        self.legend()
+
+        return super(OpendapGraph, self).png_response()
+
     def on_draw(self, event):
         """ Do last minute tweaks before actual rendering.
 
@@ -80,54 +122,15 @@ class OpendapGraph(NensGraph):
                                     marg + n + xpad,
                                     1 - 2 * marg - xpad - m,
                                     1 - 2 * marg - xpad - n))
+
+            # align the legend with the new axes layout
             self.legend_obj.set_bbox_to_anchor(
                 (marg + m + xpad,
                  marg,
                  1 - 2 * marg - xpad - m,
                  n),
                 transform=self.figure.transFigure)
+
             self.drawn = True
             self.figure.canvas.draw()
         return False
-
-    def png_response(self):
-
-        self.axes.set_xlim(date2num((self.start_date, self.end_date)))
-
-        major_locator = LessTicksAutoDateLocator()
-        self.axes.xaxis.set_major_locator(major_locator)
-
-        major_formatter = MultilineAutoDateFormatter(
-            major_locator, self.axes)
-        self.axes.xaxis.set_major_formatter(major_formatter)
-
-        # Do final tweaks after data has been added to the axes
-        ylim_old = self.axes.get_ylim()
-        ylim_new = (ylim_old[0],
-                    ylim_old[1] + 0.15 * (ylim_old[1] - ylim_old[0]))
-        self.axes.set_ylim(ylim_new)
-
-        self.axes.set_autoscaley_on(False)
-        self.legend()
-
-        return super(OpendapGraph, self).png_response()
-
-    def legend(self, handles=None, labels=None):
-        handles, labels = self.axes.get_legend_handles_labels()
-
-        if handles and labels:
-            nitems = len(handles)
-            ncol = int((nitems - 1) / 3) + 1
-            # What comes next is an educated guess on the amount of
-            # characters that can be used without collisions in the legend.
-            ntrunc = int((self.width / ncol - 24) / 10)
-
-            labels = [l[0:ntrunc] for l in labels]
-            self.legend_obj = self.axes.legend(handles,
-                             labels,
-                             bbox_to_anchor=(0., 0., 1., 0.),
-                             # bbox_transform=self.figure.transFigure,
-                             loc=3,
-                             ncol=ncol,
-                             mode="expand",
-                             borderaxespad=0.)
