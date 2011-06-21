@@ -50,6 +50,12 @@ class OpendapGraph(NensGraph):
                              horizontalalignment='left',
                              verticalalignment='top')
 
+    def set_ylabel(self,ylabel):
+        self.ylabel = self.axes.set_ylabel(ylabel,
+                                           size='large',
+                                           horizontalalignment='right',
+                                           verticalalignment='center')
+
     def add_today(self):
         # Show line for today.
         self.axes.axvline(self.today, color='orange', lw=1, ls='--')
@@ -65,7 +71,7 @@ class OpendapGraph(NensGraph):
             ntrunc = int((self.width / ncol - 24) / 10)
 
             labels = [l[0:ntrunc] for l in labels]
-            self.legend_obj = self.axes.legend(handles,
+            return self.axes.legend(handles,
                              labels,
                              bbox_to_anchor=(0., 0., 1., 0.),
                              # bbox_transform=self.figure.transFigure,
@@ -73,6 +79,9 @@ class OpendapGraph(NensGraph):
                              ncol=ncol,
                              mode="expand",
                              borderaxespad=0.)
+
+        else:
+            return None
 
     def png_response(self):
 
@@ -92,7 +101,7 @@ class OpendapGraph(NensGraph):
         self.axes.set_ylim(ylim_new)
 
         self.axes.set_autoscaley_on(False)
-        self.legend()
+        self.legend_obj = self.legend()
 
         return super(OpendapGraph, self).png_response()
 
@@ -113,7 +122,10 @@ class OpendapGraph(NensGraph):
 
             # find out about the legend height
             xticklabelheight = self.object_height(self.axes.get_xticklabels())
-            legendheight = self.object_height([self.legend_obj])
+            if self.legend_obj:
+                legendheight = self.object_height([self.legend_obj])
+            else:
+                legendheight = 0
             n = xticklabelheight + legendheight
 
             # adjust the layout accordingly
@@ -124,12 +136,13 @@ class OpendapGraph(NensGraph):
                                     1 - 2 * marg - xpad - n))
 
             # align the legend with the new axes layout
-            self.legend_obj.set_bbox_to_anchor(
-                (marg + m + xpad,
-                 marg,
-                 1 - 2 * marg - xpad - m,
-                 n),
-                transform=self.figure.transFigure)
+            if self.legend_obj:
+                self.legend_obj.set_bbox_to_anchor(
+                    (marg + m + xpad,
+                     marg,
+                     1 - 2 * marg - xpad - m,
+                     n),
+                    transform=self.figure.transFigure)
 
             self.drawn = True
             self.figure.canvas.draw()
