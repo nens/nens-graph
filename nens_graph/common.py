@@ -78,7 +78,7 @@ class NensGraph(object):
         bbox = Bbox.union(bboxes)
         return bbox.height
 
-    def on_draw_wrapper(self,event):
+    def on_draw_wrapper(self, event):
         """Avoid entering a loop, and avoid it here so that the inheriting
         classes don't have to bother."""
         if not self.drawn:
@@ -351,4 +351,3 @@ class MultilineAutoDateFormatter(AutoDateFormatter):
             dt = num2date(tick)
             middle_of_year = datetime(dt.year, 7, 1)
             return date2num(middle_of_year)
-

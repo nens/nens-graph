@@ -50,7 +50,7 @@ class OpendapGraph(NensGraph):
                              horizontalalignment='left',
                              verticalalignment='top')
 
-    def set_ylabel(self,ylabel):
+    def set_ylabel(self, ylabel):
         self.ylabel = self.axes.set_ylabel(ylabel,
                                            size='large',
                                            horizontalalignment='right',

@@ -1,13 +1,9 @@
 import datetime
-import matplotlib
 import numpy
 
-from django.http import HttpResponse
 
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.dates import date2num
 from matplotlib.figure import Figure
-from matplotlib.ticker import MaxNLocator
 from matplotlib.ticker import ScalarFormatter
 
 from nens_graph.common import MultilineAutoDateFormatter
@@ -180,16 +176,18 @@ class RainappGraph(NensGraph):
 
         This method is triggered by the draw_event, which is configured in the
         NensGraph class."""
-        
+
         margin_in_pixels = 5
         xmargin = self.get_width_from_pixels(margin_in_pixels)
         ymargin = self.get_height_from_pixels(margin_in_pixels)
 
         suptitle_padding_in_pixels = 5
-        xsuptitlepadding = self.get_width_from_pixels(suptitle_padding_in_pixels)
-        ysuptitlepadding = self.get_height_from_pixels(suptitle_padding_in_pixels)
+        xsuptitlepadding = self.get_width_from_pixels(
+            suptitle_padding_in_pixels)
+        ysuptitlepadding = self.get_height_from_pixels(
+            suptitle_padding_in_pixels)
 
-        ticklabelspace_in_pixels = 10  # This is unfortunately still an estimate
+        ticklabelspace_in_pixels = 10  # This is still an estimate
         xticklabelspace = self.get_width_from_pixels(ticklabelspace_in_pixels)
         yticklabelspace = self.get_height_from_pixels(ticklabelspace_in_pixels)
 
@@ -228,7 +226,6 @@ class RainappGraph(NensGraph):
                  axes_width,
                  legendheight),
                 transform=self.figure.transFigure)
-
 
     def png_response(self):
 
@@ -274,4 +271,3 @@ class RainappGraph(NensGraph):
         if self.ax2 is not None:
             self.ax2.set_position((axes_left, axes_bottom,
                                 axes_width, axes_height))
-
