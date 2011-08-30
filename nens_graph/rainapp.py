@@ -16,10 +16,6 @@ from nens_graph.common import NensGraph
 from nens_graph.common import Converter
 from nens_graph.common import DPI
 
-import logging
-logger = logging.getLogger(__name__)
-logger.debug('in rainappgaph')
-
 
 class RainappGraph(NensGraph):
     """
