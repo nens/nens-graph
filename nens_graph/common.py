@@ -44,6 +44,7 @@ class NensGraph(object):
         self.height = kwargs.get('height', 480)
         self.fontsize = kwargs.get('fontsize', FONTSIZE)
         self.dpi = kwargs.get('dpi', DPI)
+        self.drawn = False
 
         inches_from_pixels = Converter(dpi=self.dpi).inches_from_pixels
         self.figure = Figure(figsize=(inches_from_pixels(self.width),
@@ -53,7 +54,8 @@ class NensGraph(object):
 
     def object_width(self, objects):
         """Return width in figure coordinates of union of objects.
-       The objects should support the get_window_extent()-method."""
+       The objects should support the get_window_extent()-method. Intended for
+       use in the context of the on_draw method."""
         bboxes = []
         for o in objects:
             bbox = o.get_window_extent()
@@ -65,7 +67,8 @@ class NensGraph(object):
 
     def object_height(self, objects):
         """Return height in figure coordinates of union of objects.
-       The objects should support the get_window_extent()-method."""
+       The objects should support the get_window_extent()-method. Intended for
+       use in the context of the on_draw method."""
         bboxes = []
         for o in objects:
             bbox = o.get_window_extent()
@@ -75,8 +78,27 @@ class NensGraph(object):
         bbox = Bbox.union(bboxes)
         return bbox.height
 
-    def on_draw(self, event):
-        """ Override this function for last minute tweaks to the layout. """
+    def on_draw_wrapper(self,event):
+        """Avoid entering a loop, and avoid it here so that the inheriting
+        classes don't have to bother."""
+        if not self.drawn:
+            self.on_draw()
+            self.drawn = True
+            self.figure.canvas.draw()
+        return False
+
+    def get_width_from_pixels(self, pixels):
+        """Return the width in figure coordinates, given pixel width."""
+        return self.figure.transFigure.inverted().transform([pixels, 0])[0]
+
+    def get_height_from_pixels(self, pixels):
+        """Return the height in figure coordinates, given pixel height."""
+        return self.figure.transFigure.inverted().transform([0, pixels])[1]
+
+    def on_draw(self):
+        """Override this method for last minute tweaks to the layout. The
+        above methods object width and object height only make sense in the
+        context of this method."""
         pass
 
     def png_response(self):
@@ -84,7 +106,7 @@ class NensGraph(object):
             raise TypeError('Expected response object, not None.')
         FigureCanvas(self.figure)
 
-        self.figure.canvas.mpl_connect('draw_event', self.on_draw)
+        self.figure.canvas.mpl_connect('draw_event', self.on_draw_wrapper)
         self.figure.canvas.print_png(self.responseobject)
         response = self.responseobject
         return response
@@ -330,33 +352,3 @@ class MultilineAutoDateFormatter(AutoDateFormatter):
             middle_of_year = datetime(dt.year, 7, 1)
             return date2num(middle_of_year)
 
-
-class AutoLabelWidthAdjuster(object):
-    """A tool for the automatic adjustment of the axes extents to accomodate
-    the varying size of the ticklabels."""
-    def __init__(self, figure):
-        pass
-
-    def adjust_left_axis(event):
-        pass
-#       bboxes = []
-#       for label in labels:
-#           bbox = label.get_window_extent()
-#           # the figure transform goes from relative coords->pixels and we
-#           # want the inverse of that
-#           bboxi = bbox.inverse_transformed(fig.transFigure)
-#           bboxes.append(bboxi)
-
-#       # this is the bbox that bounds all the bboxes, again in relative
-#       # figure coords
-#       bbox = mtransforms.Bbox.union(bboxes)
-#       if fig.subplotpars.left < bbox.width:
-#           # we need to move it over
-#           fig.subplots_adjust(left=1.1*bbox.width) # pad a little
-#           fig.canvas.draw()
-#       return False
-
-#    fig.canvas.mpl_connect('draw_event', on_draw)
-
-#    plt.show()
-#
