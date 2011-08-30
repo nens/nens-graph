@@ -2,7 +2,7 @@ Changelog of nens-graph
 ===================================================
 
 
-0.1 (unreleased)
+0.1 (2011-08-30)
 ----------------
 
 - Changed signature of NensGraph.on_draw()
