@@ -39,12 +39,12 @@ class NensGraph(object):
     the calling application."""
 
     def __init__(self, **kwargs):
+        self.drawn = False
         self.responseobject = None
         self.width = kwargs.get('width', 640)
         self.height = kwargs.get('height', 480)
         self.fontsize = kwargs.get('fontsize', FONTSIZE)
         self.dpi = kwargs.get('dpi', DPI)
-        self.drawn = False
 
         inches_from_pixels = Converter(dpi=self.dpi).inches_from_pixels
         self.figure = Figure(figsize=(inches_from_pixels(self.width),

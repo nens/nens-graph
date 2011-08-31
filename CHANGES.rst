@@ -5,7 +5,10 @@ Changelog of nens-graph
 0.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Cleaned up rainapp graph. It is now only intended for a barchart of
+  precipitation data.
+
+- Implemented a custom ylim calculation and setting for barcharts.
 
 
 0.1 (2011-08-30)
