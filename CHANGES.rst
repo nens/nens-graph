@@ -2,7 +2,7 @@ Changelog of nens-graph
 ===================================================
 
 
-0.2 (unreleased)
+0.2 (2011-09-01)
 ----------------
 
 - Cleaned up rainapp graph. It is now only intended for a barchart of
