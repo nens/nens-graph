@@ -10,6 +10,8 @@ Changelog of nens-graph
 
 - Implemented a custom ylim calculation and setting for barcharts.
 
+- Set lower ylim to -1% and ylim max to at least 1 mm in rainapp.
+
 
 0.1 (2011-08-30)
 ----------------

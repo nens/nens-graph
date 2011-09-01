@@ -168,8 +168,11 @@ class RainappGraph(NensGraph):
         if len(self.axes.patches) > 0:
             data_bbox = Bbox.union(
                 [p.get_extents() for p in self.axes.patches])
-            data_ylim = data_bbox.inverse_transformed(
+            ymin, ymax = data_bbox.inverse_transformed(
                 self.axes.transData).get_points()[:,1] * array([1, 1.1])
-            self.axes.set_ylim(data_ylim)
+            ymax = max(1, ymax)
+            ymin = -0.01 * ymax
+
+            self.axes.set_ylim((ymin, ymax))
 
         return super(RainappGraph, self).png_response()
