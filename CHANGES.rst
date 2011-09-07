@@ -2,7 +2,7 @@ Changelog of nens-graph
 ===================================================
 
 
-0.3 (unreleased)
+0.3 (2011-09-07)
 ----------------
 
 - Changed RainappGraph.legend() so that it adds a legend object to the graph.
