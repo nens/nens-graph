@@ -5,7 +5,9 @@ Changelog of nens-graph
 0.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Changed RainappGraph.legend() so that it adds a legend object to the graph.
+
+- Moved handling of figure width and height to common.NensGraph
 
 
 0.2 (2011-09-01)

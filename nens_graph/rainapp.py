@@ -20,16 +20,18 @@ class RainappGraph(NensGraph):
     
     It is specifically intended for bar charts presently."""
     
-    def __init__(self, start_date, end_date, **kwargs):
+    def __init__(self,
+                 start_date,
+                 end_date,
+                 **kwargs):
         super(RainappGraph, self).__init__(**kwargs)
         self.start_date = start_date
         self.end_date = end_date
-        self.width = kwargs.get('width', 380)
-        self.height = kwargs.get('height', 250)
         self.restrict_to_month = kwargs.get('restrict_to_month')
         self.today = kwargs.get('today')
 
         self.suptitle_obj = None
+        self.legend_obj = None
         self.axes = self.figure.add_axes([0, 0, 1, 1])
         self.axes.grid(True, linestyle='-', color='lightgrey', zorder=-999)
         self.axes.set_axisbelow(True)
@@ -72,17 +74,14 @@ class RainappGraph(NensGraph):
             ntrunc = int((self.width / ncol - 24) / 10)
 
             labels = [l[0:ntrunc] for l in labels]
-            return self.axes.legend(handles,
-                                    labels,
-                                    bbox_to_anchor=(0., 0., 1., 0.),
-                                    # bbox_transform=self.figure.transFigure,
-                                    loc='right',
-                                    ncol=ncol,
-                                    # mode="expand",
-                                    borderaxespad=0.)
-
-        else:
-            return None
+            self.legend_obj = self.axes.legend(handles,
+                              labels,
+                              bbox_to_anchor=(0., 0., 1., 0.),
+                              # bbox_transform=self.figure.transFigure,
+                              loc='right',
+                              ncol=ncol,
+                              # mode="expand",
+                              borderaxespad=0.)
 
     def on_draw(self):
         """ Do last minute tweaks before actual rendering.
@@ -161,7 +160,7 @@ class RainappGraph(NensGraph):
         #             ylim_old[1] + 0.15 * (ylim_old[1] - ylim_old[0]))
         # self.axes.set_ylim(ylim_new)
 
-        self.legend_obj = self.legend()
+        # self.legend()
         self.axes.set_xlim(date2num((self.start_date, self.end_date)))
 
         # find out about the data extents and set ylim accordingly
