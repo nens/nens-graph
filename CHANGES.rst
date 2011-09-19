@@ -5,7 +5,7 @@ Changelog of nens-graph
 0.4 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Added use of tz kwarg in Rainapp graph
 
 
 0.3 (2011-09-07)

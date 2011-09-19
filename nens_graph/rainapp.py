@@ -2,7 +2,6 @@ from datetime import datetime
 from datetime import timedelta
 from numpy import array
 
-
 from matplotlib.dates import date2num
 from matplotlib.figure import Figure
 from matplotlib.ticker import ScalarFormatter
@@ -17,16 +16,17 @@ from nens_graph.common import DPI
 
 class RainappGraph(NensGraph):
     """Specialized graph class for the rainapp
-    
+
     It is specifically intended for bar charts presently."""
-    
+
     def __init__(self,
-                 start_date,
-                 end_date,
+                 start_date_ams,
+                 end_date_ams,
                  **kwargs):
         super(RainappGraph, self).__init__(**kwargs)
-        self.start_date = start_date
-        self.end_date = end_date
+        self.start_date_ams = start_date_ams
+        self.end_date_ams = end_date_ams
+        self.tz = kwargs.get('tz', None)
         self.restrict_to_month = kwargs.get('restrict_to_month')
         self.today = kwargs.get('today')
 
@@ -42,7 +42,7 @@ class RainappGraph(NensGraph):
     def add_today(self):
         # Show line for today.
         self.axes.axvline(self.today, color='orange', lw=1, ls='--')
-   
+
     def get_bar_width(self, delta_t):
         """ Return width in data space for given timedelta."""
         date1 = datetime.now()
@@ -140,18 +140,18 @@ class RainappGraph(NensGraph):
                 transform=self.figure.transFigure)
 
     def png_response(self):
-        
+
         # try:
         #     self.set_ylim_margin(top=0.1, bottom=0.0)
         # except:
         #     pass
         # self.set_ylim_margin(top=0.1, bottom=0.0)
 
-        major_locator = LessTicksAutoDateLocator()
+        major_locator = LessTicksAutoDateLocator(tz=self.tz)
         self.axes.xaxis.set_major_locator(major_locator)
 
         major_formatter = MultilineAutoDateFormatter(
-            major_locator, self.axes)
+            major_locator, self.axes, self.tz)
         self.axes.xaxis.set_major_formatter(major_formatter)
 
         # Do final tweaks after data has been added to the axes
@@ -161,14 +161,14 @@ class RainappGraph(NensGraph):
         # self.axes.set_ylim(ylim_new)
 
         # self.legend()
-        self.axes.set_xlim(date2num((self.start_date, self.end_date)))
+        self.axes.set_xlim(date2num((self.start_date_ams, self.end_date_ams)))
 
         # find out about the data extents and set ylim accordingly
         if len(self.axes.patches) > 0:
             data_bbox = Bbox.union(
                 [p.get_extents() for p in self.axes.patches])
             ymin, ymax = data_bbox.inverse_transformed(
-                self.axes.transData).get_points()[:,1] * array([1, 1.1])
+                self.axes.transData).get_points()[:, 1] * array([1, 1.1])
             ymax = max(1, ymax)
             ymin = -0.01 * ymax
 
