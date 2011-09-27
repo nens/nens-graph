@@ -105,7 +105,7 @@ class OpendapGraph(NensGraph):
 
         return super(OpendapGraph, self).png_response()
 
-    def on_draw(self, event):
+    def on_draw(self):
         """ Do last minute tweaks before actual rendering.
 
         This method is triggered by the draw_event, which is configured in the
