@@ -2,7 +2,7 @@ Changelog of nens-graph
 ===================================================
 
 
-0.4 (unreleased)
+0.4 (2011-09-30)
 ----------------
 
 - Nothing changed yet.
