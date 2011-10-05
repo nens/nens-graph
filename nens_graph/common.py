@@ -58,7 +58,7 @@ class NensGraph(object):
        use in the context of the on_draw method."""
         bboxes = []
         for o in objects:
-            bbox = o.get_window_extent()
+            bbox = o.get_window_extent(renderer=self.renderer)
             # get_window_extent() gives pixels, we need figure coordinates:
             bboxi = bbox.inverse_transformed(self.figure.transFigure)
             bboxes.append(bboxi)
@@ -71,7 +71,11 @@ class NensGraph(object):
        use in the context of the on_draw method."""
         bboxes = []
         for o in objects:
-            bbox = o.get_window_extent()
+            if isinstance(o,matplotlib.text.Text):
+                # the Text.get_window_extent accepts a renderer
+                bbox = o.get_window_extent(renderer=self.renderer)
+            else:
+                bbox = o.get_window_extent()
             # get_window_extent() gives pixels, we need figure coordinates:
             bboxi = bbox.inverse_transformed(self.figure.transFigure)
             bboxes.append(bboxi)
@@ -105,6 +109,10 @@ class NensGraph(object):
         if self.responseobject is None:
             raise TypeError('Expected response object, not None.')
         FigureCanvas(self.figure)
+
+        # The renderer is used to audit the size of certain graph elements in
+        # the functions object_width and object_height above.
+        self.renderer = self.figure.canvas.get_renderer()
 
         self.figure.canvas.mpl_connect('draw_event', self.on_draw_wrapper)
         self.figure.canvas.print_png(self.responseobject)

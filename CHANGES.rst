@@ -5,7 +5,8 @@ Changelog of nens-graph
 0.5 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Adjusted Opendap graph so that it does not define locator and formatter if the
+  restrict_to_month keyword is present.
 
 
 0.4 (2011-09-30)
