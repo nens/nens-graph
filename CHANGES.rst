@@ -5,7 +5,12 @@ Changelog of nens-graph
 0.4.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Used latest layout system for opendap graph, inspired by rainappgraph
+
+- Added dedicated method for getting bbox of ticklabels, since the general way
+  didn't work.
+
+- Made the truncation length of legend labels a little larger
 
 
 0.4.2 (2011-10-06)

@@ -7,11 +7,6 @@ from nens_graph.common import LessTicksAutoDateLocator
 
 from matplotlib import cm
 from matplotlib.dates import date2num
-from matplotlib.ticker import ScalarFormatter
-from matplotlib.ticker import AutoLocator
-from matplotlib.ticker import MaxNLocator
-from matplotlib.dates import AutoDateLocator
-from matplotlib.dates import AutoDateFormatter
 
 logger = getLogger(__name__)
 
@@ -36,12 +31,12 @@ class OpendapGraph(NensGraph):
         self.drawn = False
 
         # Layout of the axes in the figure
-        self.axes_left = 0.1
-        self.axes_width = 0.87
         self.axes = self.figure.add_axes([0, 0, 1, 1])
         self.axes.grid(True, linestyle='-', color='lightgrey')
         self.suptitle_obj = None
         self.legend_obj = None
+        self.ylabel = None
+        self.xlabel = None
 
         # bar style options and initializations
         self.legend_handles = []
@@ -57,6 +52,12 @@ class OpendapGraph(NensGraph):
         self.suptitle_obj = self.figure.suptitle(title,
                              horizontalalignment='left',
                              verticalalignment='top')
+
+    def set_xlabel(self, xlabel):
+        self.xlabel = self.axes.set_xlabel(xlabel,
+                                           size='large',
+                                           horizontalalignment='right',
+                                           verticalalignment='center')
 
     def set_ylabel(self, ylabel):
         self.ylabel = self.axes.set_ylabel(ylabel,
@@ -76,7 +77,7 @@ class OpendapGraph(NensGraph):
             ncol = int((nitems - 1) / 3) + 1
             # What comes next is an educated guess on the amount of
             # characters that can be used without collisions in the legend.
-            ntrunc = int((self.width / ncol - 24) / 10)
+            ntrunc = int((self.width / ncol - 24) / 8)
 
             labels = [l[0:ntrunc] for l in labels]
             return self.axes.legend(handles,
@@ -95,8 +96,6 @@ class OpendapGraph(NensGraph):
 
         if not self.restrict_to_month:
             self.axes.set_xlim(date2num((self.start_date, self.end_date)))
-
-
 
         # Do final tweaks after data has been added to the axes
         ylim_old = self.axes.get_ylim()
@@ -122,37 +121,65 @@ class OpendapGraph(NensGraph):
             self.axes.xaxis.set_major_locator(major_locator)
             self.axes.xaxis.set_major_formatter(major_formatter)
 
+        margin_in_pixels = 5
+        xmargin = self.get_width_from_pixels(margin_in_pixels)
+        ymargin = self.get_height_from_pixels(margin_in_pixels)
 
-        marg = 0.03
-        xpad = 0.03  # Estimated space between axes and labels.
-        # TODO get real space between axes and labels.
+        suptitle_padding_in_pixels = 5
+        xsuptitlepadding = self.get_width_from_pixels(
+            suptitle_padding_in_pixels)
+        ysuptitlepadding = self.get_height_from_pixels(
+            suptitle_padding_in_pixels)
 
-        # find out about the y(tick)label widths
-        yticklabelwidth = self.object_width(self.axes.get_yticklabels())
-        ylabelwidth = self.object_width([self.ylabel])
-        m = yticklabelwidth + ylabelwidth
+        xextraspace_in_pixels = 10  # This is still an estimate
+        yextraspace_in_pixels = 10  # This is still an estimate
+        xextraspace = self.get_height_from_pixels(xextraspace_in_pixels)
+        yextraspace = self.get_width_from_pixels(yextraspace_in_pixels)
+
+        # find out about the (tick)label size
+        yticklabelwidth = self.ticklabel_bbox(self.axes.yaxis).width
+        xticklabelheight = self.ticklabel_bbox(self.axes.xaxis).height
+
+        if self.ylabel:
+            ylabelwidth = self.object_width([self.ylabel])
+        else:
+            ylabelwidth = 0
+        if self.xlabel:
+            xlabelheight = self.object_height([self.xlabel])
+        else:
+            xlabelheight = 0
 
         # find out about the legend height
-        xticklabelheight = self.object_height(self.axes.get_xticklabels())
         if self.legend_obj:
             legendheight = self.object_height([self.legend_obj])
         else:
             legendheight = 0
-        n = xticklabelheight + legendheight
+
+        # Prepare dimensions of axis
+        axes_x = xmargin + ylabelwidth + yticklabelwidth + yextraspace
+        axes_y = (ymargin + xlabelheight + xticklabelheight + xextraspace +
+                  legendheight)
+
+        logger.debug(xlabelheight)
+        axes_width = 1 - axes_x - xmargin
+        axes_height = 1 - axes_y - ymargin
 
         # adjust the layout accordingly
+        logger.debug(self.suptitle_obj)
         if self.suptitle_obj:
-            self.suptitle_obj.set_position((0.06 + xpad + m, 0.93))
-        self.axes.set_position((marg + m + xpad,
-                                marg + n + xpad,
-                                1 - 2 * marg - xpad - m,
-                                1 - 2 * marg - xpad - n))
+            self.suptitle_obj.set_position(
+                (axes_x + xsuptitlepadding,
+                 1 - ymargin - ysuptitlepadding))
+        self.axes.set_position((axes_x,
+                                axes_y,
+                                axes_width,
+                                axes_height))
 
         # align the legend with the new axes layout
         if self.legend_obj:
             self.legend_obj.set_bbox_to_anchor(
-                (marg + m + xpad,
-                 marg,
-                 1 - 2 * marg - xpad - m,
-                 n),
+                (axes_x,
+                 ymargin,
+                 axes_width,
+                 legendheight),
                 transform=self.figure.transFigure)

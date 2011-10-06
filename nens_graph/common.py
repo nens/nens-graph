@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import division
 
 from matplotlib.transforms import Bbox
@@ -51,6 +52,8 @@ class NensGraph(object):
                                       inches_from_pixels(self.height)),
                              dpi=self.dpi,
                              facecolor='#ffffff')
+        FigureCanvas(self.figure)
+        self.renderer = self.figure.canvas.get_renderer()
 
     def object_width(self, objects):
         """Return width in figure coordinates of union of objects.
@@ -71,16 +74,19 @@ class NensGraph(object):
        use in the context of the on_draw method."""
         bboxes = []
         for o in objects:
-            if isinstance(o,matplotlib.text.Text):
-                # the Text.get_window_extent accepts a renderer
-                bbox = o.get_window_extent(renderer=self.renderer)
-            else:
-                bbox = o.get_window_extent()
+            bbox = o.get_window_extent()
+            bbox = o.get_window_extent()
             # get_window_extent() gives pixels, we need figure coordinates:
             bboxi = bbox.inverse_transformed(self.figure.transFigure)
             bboxes.append(bboxi)
         bbox = Bbox.union(bboxes)
         return bbox.height
+
+    def ticklabel_bbox(self, axis):
+        """Return bbox in figure-coordinates of ticklabels."""
+        ticklabel_extents = axis.get_ticklabel_extents(self.renderer)[0]
+        bbox = ticklabel_extents.inverse_transformed(self.figure.transFigure)
+        return bbox
 
     def on_draw_wrapper(self, event):
         """Avoid entering a loop, and avoid it here so that the inheriting
@@ -108,11 +114,9 @@ class NensGraph(object):
     def png_response(self):
         if self.responseobject is None:
             raise TypeError('Expected response object, not None.')
-        FigureCanvas(self.figure)
 
         # The renderer is used to audit the size of certain graph elements in
         # the functions object_width and object_height above.
-        self.renderer = self.figure.canvas.get_renderer()
 
         self.figure.canvas.mpl_connect('draw_event', self.on_draw_wrapper)
         self.figure.canvas.print_png(self.responseobject)

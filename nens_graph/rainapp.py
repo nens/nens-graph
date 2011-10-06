@@ -1,17 +1,12 @@
 from datetime import datetime
-from datetime import timedelta
 from numpy import array
 
 from matplotlib.dates import date2num
-from matplotlib.figure import Figure
-from matplotlib.ticker import ScalarFormatter
 from matplotlib.transforms import Bbox
 
 from nens_graph.common import MultilineAutoDateFormatter
 from nens_graph.common import LessTicksAutoDateLocator
 from nens_graph.common import NensGraph
-from nens_graph.common import Converter
-from nens_graph.common import DPI
 
 
 class RainappGraph(NensGraph):
