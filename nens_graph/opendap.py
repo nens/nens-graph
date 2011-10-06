@@ -152,7 +152,7 @@ class OpendapGraph(NensGraph):
         if self.legend_obj:
             self.legend_obj.set_bbox_to_anchor(
                 (marg + m + xpad,
-                 marg + 1,
+                 marg,
                  1 - 2 * marg - xpad - m,
                  n),
                 transform=self.figure.transFigure)
