@@ -2,7 +2,7 @@ Changelog of nens-graph
 ===================================================
 
 
-0.4.3 (unreleased)
+0.4.3 (2011-10-06)
 ------------------
 
 - Used latest layout system for opendap graph, inspired by rainappgraph
