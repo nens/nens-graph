@@ -2,7 +2,7 @@ Changelog of nens-graph
 ===================================================
 
 
-0.4.2 (unreleased)
+0.4.2 (2011-10-06)
 ------------------
 
 - Put legend back in place
