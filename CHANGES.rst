@@ -5,7 +5,7 @@ Changelog of nens-graph
 0.4.5 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Added MANIFEST.in for making packages.
 
 
 0.4.4 (2011-11-21)
