@@ -2,7 +2,7 @@ Changelog of nens-graph
 ===================================================
 
 
-0.4.4 (unreleased)
+0.4.4 (2011-11-21)
 ------------------
 
 - Added new scales: RestrictToMonthScale, MercatorLatitudeScale.
