@@ -37,7 +37,14 @@ matplotlib.rcParams.update(RC_PARAMS)
 class NensGraph(object):
     """Base for all graphs in the nens_graph library. Provides methods for
     initialization and serving. The responseobject needs to be created in
-    the calling application."""
+    the calling application.
+
+    Constructor arguments:
+    - width (optional, default: 640)
+    - height (optional, default: 480)
+    - fontsize (optional, default: 10)
+    - dpi (optional, default: 72)
+    """
 
     def __init__(self, **kwargs):
         self.drawn = False
@@ -111,16 +118,23 @@ class NensGraph(object):
         context of this method."""
         pass
 
-    def png_response(self):
-        if self.responseobject is None:
+    def png_response(self, response=None):
+        """
+        Generate png response.
+
+        if the class is used in Django:
+        response = HttpResponse(content_type='image/png')
+        """
+        if response is None:
+            response = self.responseobject
+        if response is None:
             raise TypeError('Expected response object, not None.')
 
         # The renderer is used to audit the size of certain graph elements in
         # the functions object_width and object_height above.
 
         self.figure.canvas.mpl_connect('draw_event', self.on_draw_wrapper)
-        self.figure.canvas.print_png(self.responseobject)
-        response = self.responseobject
+        self.figure.canvas.print_png(response)
         return response
 
 

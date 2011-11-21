@@ -5,7 +5,9 @@ Changelog of nens-graph
 0.4.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Added new scales: RestrictToMonthScale, MercatorLatitudeScale.
+
+- Added kwarg response to NensGraph.png_response to make it more flexible.
 
 
 0.4.3 (2011-10-06)
