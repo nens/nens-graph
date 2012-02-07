@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 
+import math
+import iso8601
+
 from matplotlib.transforms import Bbox
 from matplotlib.figure import Figure
 from matplotlib.dates import AutoDateFormatter
@@ -136,6 +139,301 @@ class NensGraph(object):
         self.figure.canvas.mpl_connect('draw_event', self.on_draw_wrapper)
         self.figure.canvas.print_png(response)
         return response
+
+
+def dates_values(timeseries):
+    """
+    Return lists of dates, values, flag_dates and flag_values.
+
+    Accepts single timeseries. Easy when using matplotlib.
+    """
+    dates = []
+    values = []
+    flag_dates = []
+    flag_values = []
+    for timestamp, (value, flag, comment) in timeseries.sorted_event_items():
+        if value is not None:
+            dates.append(timestamp)
+            values.append(value)
+
+            # Flags:
+            # 0: Original/Reliable
+            # 1: Corrected/Reliable
+            # 2: Completed/Reliable
+            # 3: Original/Doubtful
+            # 4: Corrected/Doubtful
+            # 5: Completed/Doubtful
+            # 6: Missing/Unreliable
+            # 7: Corrected/Unreliable
+            # 8: Completed/Unreliable
+            # 9: Missing value
+            if flag > 2:
+                flag_dates.append(timestamp)
+                flag_values.append(flag)
+    return dates, values, flag_dates, flag_values
+
+
+class DateGridGraph(NensGraph):
+    """
+    Standard graph with a grid and dates on the x-axis.
+
+    Inspired by lizard-map adapter.graph, but it is more generic.
+
+    Note: margin_extra_xx is defined, it looks like you can just stack
+    stuff. But don't do that - for each item the total-final-height of
+    _every_ component is needed to calculate the exact location in
+    pixels. So if you wanna stack something, you need to recalculate
+    all coordinates of components.
+    """
+    MARGIN_TOP = 10
+    MARGIN_BOTTOM = 25
+    MARGIN_LEFT = 96
+    MARGIN_RIGHT = 54
+
+    def __init__(self, **kwargs):
+        super(DateGridGraph, self).__init__(**kwargs)
+
+        # # Calculate surrounding space. We want it to be a constant
+        # # number of pixels. Safety check first.
+        # if (self.width > self.MARGIN_LEFT + self.MARGIN_RIGHT and
+        #     self.height > self.MARGIN_TOP + self.MARGIN_BOTTOM):
+
+        #     self.figure.subplots_adjust(
+        #         bottom=float(self.MARGIN_BOTTOM)/self.height,
+        #         top=float(self.height-self.MARGIN_TOP)/self.height,
+        #         left=float(self.MARGIN_LEFT)/self.width,
+        #         right=float(self.width-self.MARGIN_RIGHT)/self.width)
+
+        self.axes = self.figure.add_subplot(111)
+        self.axes.grid(True)
+
+        major_locator = LessTicksAutoDateLocator()
+        self.axes.xaxis.set_major_locator(major_locator)
+
+        self.margin_top_extra = 0
+        self.margin_bottom_extra = 0
+        self.margin_left_extra = 0
+        self.margin_right_extra = 0
+
+        major_formatter = MultilineAutoDateFormatter(
+            major_locator, self.axes)
+        self.axes.xaxis.set_major_formatter(major_formatter)
+
+    def graph_width(self):
+        """
+        Return the current width in pixels.
+
+        This width is considered '1' in the matplotlib coordinate system.
+        """
+        width = self.width - (
+            self.MARGIN_LEFT + self.margin_left_extra +
+            self.MARGIN_RIGHT + self.margin_right_extra)
+        return max(width, 1)
+
+    def graph_height(self):
+        """
+        Return the current height in pixels.
+
+        This height is considered '1' in the matplotlib coordinate system.
+        """
+        height = self.height - (
+            self.MARGIN_TOP + self.margin_top_extra +
+            self.MARGIN_BOTTOM + self.margin_bottom_extra)
+        return max(height, 1)
+
+    def legend(self, handles=None, labels=None, legend_location=0):
+        """
+        Add a legend to a graph.
+
+        'best' 	0
+        'upper right' 	1
+        'upper left' 	2
+        'lower left' 	3
+        'lower right' 	4
+        'right' 	5
+        'center left' 	6
+        'center right' 	7
+        'lower center' 	8
+        'upper center' 	9
+        'center' 	10
+        """
+        if not handles or not labels:
+            handles, labels = self.axes.get_legend_handles_labels()
+
+        if handles and labels:
+            nitems = len(handles)
+            if legend_location in [5, 6, 7]:
+                ncol = 1
+                legend_lines = nitems
+            else:
+                ncol = min(nitems, 2)
+                # What comes next is an educated guess on the amount of
+                # characters that can be used without collisions in the legend.
+                ntrunc = int((self.width / ncol - 24) / 10)
+                labels = [l[0:ntrunc] for l in labels]
+                legend_lines = int(math.ceil(float(nitems) / ncol))
+
+            if legend_location in [3, 4, 8]:
+                # 11 is margin for legend, 10 is line height, 6 is extra
+                # In pixels
+                self.margin_bottom_extra += legend_lines * 10 + 11 + 6
+                legend_y = -float(self.margin_bottom_extra -
+                                  3 +  # 3 is for bottom space
+                                  self.MARGIN_BOTTOM) / self.graph_height()
+                # quite stupid, but the coordinate system changes when you
+                # use set_position. So the graph is on the negative side.
+
+                # x, y, width, height
+                bbox_to_anchor = (0., legend_y, 1., 0.)
+            elif legend_location in [7, ]:
+                # In pixels
+                self.margin_right_extra += 210
+                legend_x = 1 + float(self.margin_right_extra
+                                     ) / self.graph_width()
+                bbox_to_anchor = (legend_x, 0., 0., 1.)
+            else:
+                # default
+                bbox_to_anchor = (0., 0., 1., 1.)
+
+            self.legend_obj = self.axes.legend(
+                handles,
+                labels,
+                bbox_to_anchor=bbox_to_anchor,
+                loc=legend_location,
+                ncol=ncol,
+                borderaxespad=0.,
+                fancybox=True,
+                shadow=True,)
+
+    def line_from_single_ts(self, single_ts, graph_item,
+                            default_color=None, flags=False):
+        """
+        Draw line(s) from a single timeseries.
+
+        Color is a matplotlib color, i.e. 'blue', 'black'
+
+        Graph_item can contain an attribute 'layout'.
+        """
+        dates, values, flag_dates, flag_values = dates_values(single_ts)
+        if not values:
+            return
+
+        layout = graph_item.layout_dict()
+
+        label = layout.get('label', '%s - %s (%s)' % (
+                single_ts.location_id, single_ts.parameter_id,
+                single_ts.units))
+        style = {
+            'label': label,
+            'color': layout.get('color', default_color),
+            'lw': layout.get('line-width', 2),
+            'ls': layout.get('line-style', '-'),
+            }
+
+        # Line
+        self.axes.plot(dates, values, **style)
+        # Flags: style is not customizable.
+        if flags:
+            self.axes.plot(flag_dates, flag_values, "o-", color='red',
+                           label=label + ' flags')
+
+    def horizontal_line(self, value, layout, default_color=None):
+        """
+        Draw horizontal line.
+        """
+        style = {
+            'ls': layout.get('line-style', '-'),
+            'lw': int(layout.get('line-width', 2)),
+            'color': layout.get('color', default_color),
+            }
+        if 'label' in layout:
+            style['label'] = layout['label']
+        self.axes.axhline(float(value), **style)
+
+    def vertical_line(self, value, layout, default_color=None):
+        """
+        Draw vertical line.
+        """
+        style = {
+            'ls': layout.get('line-style', '-'),
+            'lw': int(layout.get('line-width', 2)),
+            'color': layout.get('color', default_color),
+            }
+        if 'label' in layout:
+            style['label'] = layout['label']
+        try:
+            dt = iso8601.parse_date(value)
+        except iso8601.ParseError:
+            dt = datetime.datetime.now()
+        self.axes.axvline(dt, **style)
+
+    def bar_from_single_ts(self, single_ts, graph_item, bar_width,
+                           default_color=None, bottom_ts=None):
+        """
+        Draw bars.
+
+        Graph_item can contain an attribute 'layout'.
+
+        Bottom_ts and single_ts MUST have the same timestamps. This
+        can be accomplished by: single_ts = single_ts + bottom_ts * 0
+        bottom_ts = bottom_ts + single_ts * 0
+
+        bar_width in days
+        """
+
+        dates, values, flag_dates, flag_values = dates_values(single_ts)
+
+        bottom = None
+        if bottom_ts:
+            bottom = dates_values(bottom_ts)
+
+        if not values:
+            return
+
+        layout = graph_item.layout_dict()
+
+        label = layout.get('label', '%s - %s (%s)' % (
+            single_ts.location_id, single_ts.parameter_id, single_ts.units))
+
+        style = {'color': layout.get('color', default_color),
+                 'edgecolor': layout.get('color-outside', 'grey'),
+                 'label': label,
+                 'width': bar_width}
+        if bottom:
+            style['bottom'] = bottom[1]  # 'values' of bottom
+        self.axes.bar(dates, values, **style)
+
+    def set_margins(self):
+        """
+        Set the graph margins.
+
+        Using MARGIN settings and margin_legend_bottom (in
+        pixels). Call after adding legend and other stuff, just before
+        png_response.
+        """
+        # Calculate surrounding space. We want it to be a constant
+        # number of pixels. Safety check first, else just "do something".
+        if (self.width > self.MARGIN_LEFT + self.margin_left_extra +
+            self.MARGIN_RIGHT + self.margin_right_extra and
+            self.height > self.MARGIN_TOP + self.margin_top_extra +
+            self.MARGIN_BOTTOM + self.margin_bottom_extra):
+
+            # x, y, width, height.. all from 0..1
+            axes_x = float(self.MARGIN_LEFT +
+                           self.margin_left_extra) / self.width
+            axes_y = float(self.MARGIN_BOTTOM +
+                           self.margin_bottom_extra) / self.height
+            axes_width = float(self.width -
+                               (self.MARGIN_LEFT +
+                                self.margin_left_extra +
+                                self.MARGIN_RIGHT +
+                                self.margin_right_extra)) / self.width
+            axes_height = float(self.height -
+                                (self.MARGIN_TOP +
+                                 self.margin_top_extra +
+                                 self.MARGIN_BOTTOM +
+                                 self.margin_bottom_extra)) / self.height
+            self.axes.set_position((axes_x, axes_y, axes_width, axes_height))
 
 
 class Converter(object):

@@ -12,6 +12,7 @@ long_description = '\n\n'.join([
 install_requires = [
     'pkginfo',
     'setuptools',
+    'iso8601',
     ],
 
 tests_require = [
@@ -19,13 +20,13 @@ tests_require = [
 
 setup(name='nens-graph',
       version=version,
-      description="TODO",
+      description="Generic graph functions.",
       long_description=long_description,
       # Get strings from http://www.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[],
       keywords=[],
-      author='TODO',
-      author_email='TODO@nelen-schuurmans.nl',
+      author='Arjan Verkerk',
+      author_email='arjan.verkerk@nelen-schuurmans.nl',
       url='',
       license='GPL',
       packages=['nens_graph'],
