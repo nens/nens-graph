@@ -2,8 +2,8 @@ Changelog of nens-graph
 ===================================================
 
 
-0.4.6 (unreleased)
-------------------
+0.5 (2012-02-07)
+----------------
 
 - Moved DateGridGraph from lizard-graph to here.
 
