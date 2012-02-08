@@ -13,6 +13,7 @@ install_requires = [
     'pkginfo',
     'setuptools',
     'iso8601',
+    'timeseries >= 0.16',
     ],
 
 tests_require = [

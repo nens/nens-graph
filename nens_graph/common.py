@@ -141,17 +141,25 @@ class NensGraph(object):
         return response
 
 
-def dates_values(timeseries):
+def dates_values(timeseries, request_dates=None):
     """
     Return lists of dates, values, flag_dates and flag_values.
 
     Accepts single timeseries. Easy when using matplotlib.
+
+    When request_dates is provided as list of dates, the result will
+    only include dates that are in the list of request_dates.
     """
     dates = []
     values = []
     flag_dates = []
     flag_values = []
-    for timestamp, (value, flag, comment) in timeseries.sorted_event_items():
+    timeseries_options = {}
+    if request_dates is not None:
+        timeseries_options['dates'] = request_dates
+    for timestamp, (value, flag, comment) in timeseries.get_events(
+        **timeseries_options):
+
         if value is not None:
             dates.append(timestamp)
             values.append(value)
@@ -385,7 +393,7 @@ class DateGridGraph(NensGraph):
 
         bottom = None
         if bottom_ts:
-            bottom = dates_values(bottom_ts)
+            bottom = dates_values(bottom_ts, request_dates=dates)
 
         if not values:
             return

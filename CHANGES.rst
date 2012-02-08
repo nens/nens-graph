@@ -5,7 +5,9 @@ Changelog of nens-graph
 0.6 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Fixed buildout config.
+
+- Fixed bug using stacked bars.
 
 
 0.5 (2012-02-07)
