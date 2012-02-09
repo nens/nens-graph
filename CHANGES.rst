@@ -2,7 +2,7 @@ Changelog of nens-graph
 ===================================================
 
 
-0.6 (unreleased)
+0.6 (2012-02-09)
 ----------------
 
 - Added timeseries_csv output for DateGridGraph.
