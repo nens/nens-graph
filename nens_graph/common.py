@@ -195,7 +195,7 @@ class DateGridGraph(NensGraph):
     """
     MARGIN_TOP = 10
     MARGIN_BOTTOM = 25
-    MARGIN_LEFT = 96
+    MARGIN_LEFT = 104
     MARGIN_RIGHT = 54
 
     def __init__(self, **kwargs):

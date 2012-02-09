@@ -5,7 +5,7 @@ Changelog of nens-graph
 0.6 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Changed MARGIN_LEFT from 96 to 104.
 
 
 0.5.1 (2012-02-08)
