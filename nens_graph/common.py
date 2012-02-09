@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 
+import csv
 import math
 import iso8601
 
@@ -227,6 +228,10 @@ class DateGridGraph(NensGraph):
             major_locator, self.axes)
         self.axes.xaxis.set_major_formatter(major_formatter)
 
+        # Keep a track of timeseries that went by, consist of 2-tuples
+        # (label, timeseries)
+        self.stored_timeseries = []
+
     def graph_width(self):
         """
         Return the current width in pixels.
@@ -331,6 +336,7 @@ class DateGridGraph(NensGraph):
         label = layout.get('label', '%s - %s (%s)' % (
                 single_ts.location_id, single_ts.parameter_id,
                 single_ts.units))
+        self.stored_timeseries.append((label, single_ts))
         style = {
             'label': label,
             'color': layout.get('color', default_color),
@@ -402,6 +408,7 @@ class DateGridGraph(NensGraph):
 
         label = layout.get('label', '%s - %s (%s)' % (
             single_ts.location_id, single_ts.parameter_id, single_ts.units))
+        self.stored_timeseries.append((label, single_ts))
 
         style = {'color': layout.get('color', default_color),
                  'edgecolor': layout.get('color-outside', 'grey'),
@@ -442,6 +449,24 @@ class DateGridGraph(NensGraph):
                                  self.MARGIN_BOTTOM +
                                  self.margin_bottom_extra)) / self.height
             self.axes.set_position((axes_x, axes_y, axes_width, axes_height))
+
+    def timeseries_csv(self, response=None):
+        """
+        Writes csv in provided (django) response.
+
+        If response is omitted, output will be on std out (for debugging).
+        """
+        if response is None:
+            for label, ts in self.stored_timeseries:
+                print label
+                print ts.get_events()
+            return
+        writer = csv.writer(response)
+        for label, ts in self.stored_timeseries:
+            writer.writerow([label])
+            writer.writerow(['datetime', 'value', 'flag', 'comment'])
+            for dt, (value, flag, comment) in ts.get_events():
+                writer.writerow([dt, value, flag, comment])
 
 
 class Converter(object):
