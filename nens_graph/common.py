@@ -300,10 +300,10 @@ class DateGridGraph(NensGraph):
                 bbox_to_anchor = (0., legend_y, 1., 0.)
             elif legend_location in [7, ]:
                 # In pixels
-                self.margin_right_extra += 210
-                legend_x = 1 + float(self.margin_right_extra
-                                     ) / self.graph_width()
-                bbox_to_anchor = (legend_x, 0., 0., 1.)
+                self.margin_right_extra += 90
+                legend_width = float(self.margin_right_extra +
+                                     self.MARGIN_RIGHT - 1) / self.graph_width()
+                bbox_to_anchor = (1., 0., legend_width, 1.)
             else:
                 # default
                 bbox_to_anchor = (0., 0., 1., 1.)
