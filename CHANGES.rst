@@ -2,8 +2,8 @@ Changelog of nens-graph
 ===================================================
 
 
-0.7 (unreleased)
-----------------
+0.6.1 (2012-02-13)
+------------------
 
 - Improved margins around legend when legend-location is 7.
 
