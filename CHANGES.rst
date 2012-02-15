@@ -2,10 +2,10 @@ Changelog of nens-graph
 ===================================================
 
 
-0.6.2 (unreleased)
-------------------
+0.7 (2012-02-15)
+----------------
 
-- Nothing changed yet.
+- Made matplotlib markers possible in GraphItem line.
 
 
 0.6.1 (2012-02-13)

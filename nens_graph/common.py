@@ -337,15 +337,16 @@ class DateGridGraph(NensGraph):
                 single_ts.location_id, single_ts.parameter_id,
                 single_ts.units))
         self.stored_timeseries.append((label, single_ts))
+
+        marker_style = layout.get('line-style', '-')
         style = {
             'label': label,
             'color': layout.get('color', default_color),
             'lw': layout.get('line-width', 2),
-            'ls': layout.get('line-style', '-'),
             }
 
         # Line
-        self.axes.plot(dates, values, **style)
+        self.axes.plot(dates, values, marker_style, **style)
         # Flags: style is not customizable.
         if flags:
             self.axes.plot(flag_dates, flag_values, "o-", color='red',
