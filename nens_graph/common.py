@@ -142,9 +142,10 @@ class NensGraph(object):
         return response
 
 
-def dates_values(timeseries, request_dates=None):
+def dates_values_comments(timeseries, request_dates=None):
     """
-    Return lists of dates, values, flag_dates and flag_values.
+    Return lists of dates, values, comments, flag_dates, flag_values
+    and flag_comments.
 
     Accepts single timeseries. Easy when using matplotlib.
 
@@ -153,8 +154,10 @@ def dates_values(timeseries, request_dates=None):
     """
     dates = []
     values = []
+    comments = []
     flag_dates = []
     flag_values = []
+    flag_comments = []
     timeseries_options = {}
     if request_dates is not None:
         timeseries_options['dates'] = request_dates
@@ -164,6 +167,7 @@ def dates_values(timeseries, request_dates=None):
         if value is not None:
             dates.append(timestamp)
             values.append(value)
+            comments.append(comment)
 
             # Flags:
             # 0: Original/Reliable
@@ -179,6 +183,16 @@ def dates_values(timeseries, request_dates=None):
             if flag > 2:
                 flag_dates.append(timestamp)
                 flag_values.append(flag)
+                flag_comments.append(comment)
+    return dates, values, comments, flag_dates, flag_values, flag_comments
+
+
+def dates_values(timeseries, request_dates=None):
+    """
+    Return lists of dates, values, flag_dates and flag_values.
+    """
+    dates, values, comments, flag_dates, flag_values, flag_comments = dates_values_comments(
+        timeseries, request_dates=request_dates)
     return dates, values, flag_dates, flag_values
 
 

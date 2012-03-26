@@ -5,7 +5,8 @@ Changelog of nens-graph
 0.8 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Added function dates_values_comments. The function dates_values is
+  now a wrapper for dates_values_comments.
 
 
 0.7 (2012-02-15)
