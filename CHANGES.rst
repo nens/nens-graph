@@ -5,7 +5,7 @@ Changelog of nens-graph
 0.9 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Legends now have 100 pixels instead of 90 pixels.
 
 
 0.8 (2012-03-26)
