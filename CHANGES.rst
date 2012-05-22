@@ -5,7 +5,7 @@ Changelog of nens-graph
 0.10 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Added option 'remove_duplicates' for DataGridGraph.legend.
 
 
 0.9 (2012-04-23)

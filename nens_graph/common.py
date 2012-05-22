@@ -268,7 +268,8 @@ class DateGridGraph(NensGraph):
             self.MARGIN_BOTTOM + self.margin_bottom_extra)
         return max(height, 1)
 
-    def legend(self, handles=None, labels=None, legend_location=0):
+    def legend(self, handles=None, labels=None, legend_location=0,
+               remove_duplicates=False):
         """
         Add a legend to a graph.
 
@@ -286,6 +287,15 @@ class DateGridGraph(NensGraph):
         """
         if not handles or not labels:
             handles, labels = self.axes.get_legend_handles_labels()
+
+        # Remove duplicates: sometimes multiple items have the
+        # same label, we want them removed.
+        if remove_duplicates:
+            labels_copy = list(labels)
+            for index, label in enumerate(labels_copy):
+                while labels.count(label) > 1:
+                    labels.pop(index)
+                    handles.pop(index)
 
         if handles and labels:
             nitems = len(handles)
