@@ -2,7 +2,7 @@ Changelog of nens-graph
 ===================================================
 
 
-0.11 (unreleased)
+0.11 (2012-05-22)
 -----------------
 
 - Added option 'reversed_legend_items' in DataGridGraph.legend.
