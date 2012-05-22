@@ -269,7 +269,7 @@ class DateGridGraph(NensGraph):
         return max(height, 1)
 
     def legend(self, handles=None, labels=None, legend_location=0,
-               remove_duplicates=False):
+               remove_duplicates=False, reversed_legend_items=[]):
         """
         Add a legend to a graph.
 
@@ -284,9 +284,21 @@ class DateGridGraph(NensGraph):
         'lower center' 	8
         'upper center' 	9
         'center' 	10
+
+        reversed_legend_items can be used to reverse the order of
+        those items. The items are listed by index.
         """
+
         if not handles or not labels:
             handles, labels = self.axes.get_legend_handles_labels()
+
+        if reversed_legend_items:
+            handle_labels = [(handles[i], labels[i]) for i in reversed_legend_items]
+            handle_labels.reverse()
+            for index, (handle, label) in enumerate(handle_labels):
+                target_index = reversed_legend_items[index]
+                handles[target_index] = handle
+                labels[target_index] = label
 
         # Remove duplicates: sometimes multiple items have the
         # same label, we want them removed.
@@ -350,10 +362,12 @@ class DateGridGraph(NensGraph):
         Color is a matplotlib color, i.e. 'blue', 'black'
 
         Graph_item can contain an attribute 'layout'.
+        Return number of items added to the graph.
         """
+        result = 0
         dates, values, flag_dates, flag_values = dates_values(single_ts)
         if not values:
-            return
+            return result
 
         layout = graph_item.layout_dict()
 
@@ -370,15 +384,20 @@ class DateGridGraph(NensGraph):
             }
 
         # Line
-        self.axes.plot(dates, values, marker_style, **style)
+        result += 1 if self.axes.plot(dates, values, marker_style, **style) else 0
         # Flags: style is not customizable.
         if flags:
-            self.axes.plot(flag_dates, flag_values, "o-", color='red',
-                           label=label + ' flags')
+            result += 1 if self.axes.plot(
+                flag_dates, flag_values, "o-", color='red',
+                label=label + ' flags') else 0
+
+        return result
 
     def horizontal_line(self, value, layout, default_color=None):
         """
         Draw horizontal line.
+
+        Return number of items added to the graph
         """
         style = {
             'ls': layout.get('line-style', '-'),
@@ -387,11 +406,13 @@ class DateGridGraph(NensGraph):
             }
         if 'label' in layout:
             style['label'] = layout['label']
-        self.axes.axhline(float(value), **style)
+        return 1 if self.axes.axhline(float(value), **style) else 0
 
     def vertical_line(self, value, layout, default_color=None):
         """
         Draw vertical line.
+
+        Return number of items added to the graph
         """
         style = {
             'ls': layout.get('line-style', '-'),
@@ -404,7 +425,7 @@ class DateGridGraph(NensGraph):
             dt = iso8601.parse_date(value)
         except iso8601.ParseError:
             dt = datetime.datetime.now()
-        self.axes.axvline(dt, **style)
+        return 1 if self.axes.axvline(dt, **style) else 0
 
     def bar_from_single_ts(self, single_ts, graph_item, bar_width,
                            default_color=None, bottom_ts=None):
@@ -418,8 +439,9 @@ class DateGridGraph(NensGraph):
         bottom_ts = bottom_ts + single_ts * 0
 
         bar_width in days
-        """
 
+        Return number of items added to the graph.
+        """
         dates, values, flag_dates, flag_values = dates_values(single_ts)
 
         bottom = None
@@ -441,7 +463,8 @@ class DateGridGraph(NensGraph):
                  'width': bar_width}
         if bottom:
             style['bottom'] = bottom[1]  # 'values' of bottom
-        self.axes.bar(dates, values, **style)
+
+        return 1 if self.axes.bar(dates, values, **style) else 0
 
     def set_margins(self):
         """
