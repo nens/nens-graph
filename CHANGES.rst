@@ -2,7 +2,7 @@ Changelog of nens-graph
 ===================================================
 
 
-0.12 (unreleased)
+0.12 (2012-05-23)
 -----------------
 
 - Added NensGraph.render function with options for: bmp, emf, eps,
