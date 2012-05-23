@@ -5,7 +5,9 @@ Changelog of nens-graph
 0.12 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Added NensGraph.render function with options for: bmp, emf, eps,
+  pdf, ps, raw, rgb, rgba, svg, svgz, png (default). Note that there
+  is no .jpg or .gif option.
 
 
 0.11 (2012-05-22)

@@ -14,7 +14,7 @@ from matplotlib.dates import RRuleLocator
 from matplotlib.dates import date2num
 from matplotlib.dates import num2date
 from matplotlib.dates import rrulewrapper
-
+from matplotlib import _png
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from datetime import datetime
@@ -122,12 +122,29 @@ class NensGraph(object):
         context of this method."""
         pass
 
-    def png_response(self, response=None):
+    # def print_png(self, canvas, filename_or_obj, *args, **kwargs):
+    #     """Copied from matplotlib backend_agg and modified"""
+    #     FigureCanvas.draw(canvas)
+    #     renderer = canvas.get_renderer()
+    #     original_dpi = renderer.dpi
+    #     renderer.dpi = canvas.figure.dpi
+    #     # if is_string_like(filename_or_obj):
+    #     #     filename_or_obj = file(filename_or_obj, 'wb')
+    #     print dir(renderer._renderer)
+    #     _png.write_png(renderer._renderer.buffer_rgba(0, 0),
+    #                    renderer.width, renderer.height,
+    #                    filename_or_obj, canvas.figure.dpi)
+    #     renderer.dpi = original_dpi
+
+    def render(self, response=None, format=None):
         """
         Generate png response.
 
         if the class is used in Django:
         response = HttpResponse(content_type='image/png')
+
+        format defaults to png and can be one of:
+        bmp, emf, eps, pdf, ps, raw, rgb, rgba, svg, svgz
         """
         if response is None:
             response = self.responseobject
@@ -138,8 +155,42 @@ class NensGraph(object):
         # the functions object_width and object_height above.
 
         self.figure.canvas.mpl_connect('draw_event', self.on_draw_wrapper)
-        self.figure.canvas.print_png(response)
+        if format == 'bmp':  # Doesn't work?
+            self.figure.canvas.print_bmp(response)
+        elif format == 'emf':  # Requires pyemf
+            self.figure.canvas.print_emf(response)
+        elif format == 'eps':
+            self.figure.canvas.print_eps(response)
+        # elif format == 'jpg':
+        #     print dir(self.figure.canvas)
+        #     self.figure.canvas.print_jpg(response)
+        elif format == 'pdf':
+            self.figure.canvas.print_pdf(response)
+        elif format == 'ps':
+            self.figure.canvas.print_ps(response)
+        elif format == 'raw':
+            self.figure.canvas.print_raw(response)
+        elif format == 'rgb':
+            self.figure.canvas.print_rgb(response)
+        elif format == 'rgba':
+            self.figure.canvas.print_rgba(response)
+        elif format == 'svg':
+            self.figure.canvas.print_svg(response)
+        elif format == 'svgz':
+            self.figure.canvas.print_svgz(response)
+        # elif format == 'png2':
+        #     self.print_png(self.figure.canvas, response)
+        else:
+            self.figure.canvas.print_png(response)
         return response
+
+    def png_response(self, response=None):
+        """
+        Generate png response.
+
+        The function is here for backward compatibility.
+        """
+        return self.render(response=response)
 
 
 def dates_values_comments(timeseries, request_dates=None):
