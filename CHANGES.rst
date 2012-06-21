@@ -2,7 +2,7 @@ Changelog of nens-graph
 ===================================================
 
 
-0.13 (unreleased)
+0.13 (2012-06-21)
 -----------------
 
 - Added DateGridGraph.timeseries_as_list for displaying timeseries as
