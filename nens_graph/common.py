@@ -567,6 +567,19 @@ class DateGridGraph(NensGraph):
             for dt, (value, flag, comment) in ts.get_events():
                 writer.writerow([dt, value, flag, comment])
 
+    def timeseries_as_list(self):
+        result = []
+        for label, ts in self.stored_timeseries:
+            result.append({'type': 'title', 'data': label})
+            result.append({'type': 'table-header', 'data':
+                           ['datetime', 'value', 'flag', 'comment']})
+            for dt, (value, flag, comment) in ts.get_events():
+                result.append({'type': 'event', 'data': [dt, value, flag, comment]})
+
+            # Just a mark to close the table when rendering
+            result.append({'type': 'table-footer', 'data': None})
+        return result
+
 
 class Converter(object):
     """Conversion methods for graphs."""
